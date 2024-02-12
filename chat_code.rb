@@ -9,6 +9,7 @@ require 'nokogiri'
 require 'openssl'
 require 'fileutils'
 require 'json'
+
 require_relative 'filename' # Ensure this is correct based on your file structure
 
 class ChatCode
