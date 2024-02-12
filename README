@@ -1,6 +1,9 @@
 This code will download files from your chatGPT shared url, to the output directory on your machine!
 Since it is downloading code from the internet, please use at your own risk.
 
+dependencies:
+ruby
+
 usage:
 ruby chat_code <chatGPT url>
 
