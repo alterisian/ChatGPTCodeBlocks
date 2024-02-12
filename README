@@ -1,0 +1,12 @@
+This code will download files from your chatGPT shared url, to the output directory on your machine!
+Since it is downloading code from the internet, please use at your own risk.
+
+usage:
+ruby chat_code <chatGPT url>
+
+testing:
+rspec
+
+current goal: getting files to be named the same as they are in the chat. 
+TODO: get filename_spec.rb passing - our code only uses the default filename, which is not optimal.
+
