@@ -30,18 +30,51 @@ class ChatCode
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true if uri.scheme == 'https'
     http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-
-    request = Net::HTTP::Get.new(uri.request_uri)
-    response = http.request(request)
-
-    if response.is_a?(Net::HTTPSuccess)
-      puts "Content retrieved successfully!"
-      response.body
-    else
-      puts "Failed to retrieve content. Error code: #{response.code}"
-      ''
+  
+    response = nil
+    max_redirects = 3
+    redirect_count = 0
+  
+    loop do
+      request = Net::HTTP::Get.new(uri)
+      response = http.request(request)
+  
+      case response
+      when Net::HTTPSuccess then
+        puts "Content retrieved successfully!"
+        break # Success, break out of the loop
+      when Net::HTTPRedirection then
+        if redirect_count >= max_redirects
+          puts "Maximum number of redirects (#{max_redirects}) exceeded."
+          return ''
+        end
+        new_location = response['location']
+        puts "Redirected to #{new_location} (redirect count: #{redirect_count + 1})"
+  
+        if new_location.include?('auth') || new_location.include?('login')
+          puts "Redirected to an authentication or login page. Additional code required to handle user login."
+          return ''
+        end
+  
+        # Resolve relative URL against the current URI
+        new_uri = URI.parse(new_location)
+        uri = new_uri.relative? ? uri + new_uri : new_uri
+  
+        # Reinitialize the HTTP object in case the host or scheme has changed
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = true if uri.scheme == 'https'
+        redirect_count += 1
+      else
+        puts "Failed to retrieve content. Error code: #{response.code}"
+        return ''
+      end
     end
+  
+    response.body
   end
+  
+  
+  
 
   def self.save_raw_content(html_content, output_dir)
     filepath = File.join(output_dir, "raw.html")
